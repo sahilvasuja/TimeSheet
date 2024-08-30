@@ -21,7 +21,7 @@
 import { call, put, takeLatest } from 'redux-saga/effects';
 import { fetchPosts } from '../../services/api';
 import axios from 'axios';
-import { fetchPostsRequest, fetchPostsSuccess, likePostRequest, likePostSuccess, likePostFailure, addCommentRequest, addCommentSuccess, addCommentFailure  } from './postsSlice';
+import { fetchPostsRequest, fetchPostsSuccess,repostPostRequest, repostPostSuccess, repostPostFailure, likePostRequest, likePostSuccess, likePostFailure, addCommentRequest, addCommentSuccess, addCommentFailure  } from './postsSlice';
 
 function* fetchPostsSaga() {
   try {
@@ -57,6 +57,25 @@ function* likePostSaga(action: ReturnType<typeof likePostRequest>) {
     }
   }
   
+  function* repostPostSaga(action: ReturnType<typeof repostPostRequest>) {
+    try {
+      const hash = action.payload;
+      // Send POST request to repost the post
+      const response = yield call(axios.post, 'https://api.socialcontinent.xyz/api/v1/post/repost', { hash });
+  
+      // Extract data from the response
+      const { reposts } = response.data;
+  
+      // Dispatch success action with response data
+      yield put(repostPostSuccess({ hash, reposts }));
+    } catch (error) {
+      // Dispatch failure action with the post hash to revert the optimistic update
+      yield put(repostPostFailure(action.payload));
+  
+      // Optionally handle the error here, e.g., logging or showing an alert
+      console.error('Error reposting post:', error);
+    }
+  }
 export function* watchPostSagas() {
-  yield takeLatest(fetchPostsRequest.type, fetchPostsSaga, likePostRequest.type, likePostSaga, addCommentRequest.type, handleAddComment);
+  yield takeLatest(fetchPostsRequest.type, fetchPostsSaga, likePostRequest.type, likePostSaga, addCommentRequest.type, handleAddComment, repostPostRequest.type, repostPostSaga);
 }

@@ -133,8 +133,8 @@ const postSlice = createSlice({
     likePostRequest(state, action: PayloadAction<string>) {
         const post = state.posts.find((post) => post.hash === action.payload);
         if (post) {
-          post.isLiked = !post.isLiked; // Optimistically toggle the like state
-          post.likes.count = post.isLiked ? post.likes.count + 1 : post.likes.count - 1; // Adjust likes count accordingly
+          post.isLiked = !post.isLiked; 
+          post.likes.count = post.isLiked ? post.likes.count + 1 : post.likes.count - 1; 
         }
         state.error = null;
       },
@@ -148,8 +148,8 @@ const postSlice = createSlice({
       likePostFailure(state, action: PayloadAction<string>) {
         const post = state.posts.find((post) => post.hash === action.payload);
         if (post) {
-          post.isLiked = !post.isLiked; // Revert the like state
-          post.likes.count = post.isLiked ? post.likes.count + 1 : post.likes.count - 1; // Adjust likes count back
+          post.isLiked = !post.isLiked;
+          post.likes.count = post.isLiked ? post.likes.count + 1 : post.likes.count - 1; 
         }
         state.error = 'Failed to update like status';
       },
@@ -170,8 +170,28 @@ const postSlice = createSlice({
       addCommentFailure(state, action: PayloadAction<string>) {
         state.error = 'Failed to add comment';
       },
+      repostPostRequest(state, action: PayloadAction<string>) {
+        const post = state.posts.find((post) => post.hash === action.payload);
+        if (post) {
+          post.reposts += 1; // Optimistically increment the repost count
+        }
+        state.error = null;
+      },
+      repostPostSuccess(state, action: PayloadAction<{ hash: string; reposts: number }>) {
+        const post = state.posts.find((post) => post.hash === action.payload.hash);
+        if (post) {
+          post.reposts = action.payload.reposts;
+        }
+      },
+      repostPostFailure(state, action: PayloadAction<string>) {
+        const post = state.posts.find((post) => post.hash === action.payload);
+        if (post) {
+          post.reposts -= 1; // Revert the repost count
+        }
+        state.error = 'Failed to update repost status';
+      },
   },
 });
 
-export const { fetchPostsRequest, fetchPostsSuccess, likePostRequest, likePostSuccess, likePostFailure, addCommentRequest, addCommentSuccess, addCommentFailure   } = postSlice.actions;
+export const { fetchPostsRequest, fetchPostsSuccess, likePostRequest, likePostSuccess, likePostFailure, addCommentRequest, addCommentSuccess, addCommentFailure,  repostPostRequest, repostPostSuccess, repostPostFailure   } = postSlice.actions;
 export default postSlice.reducer;

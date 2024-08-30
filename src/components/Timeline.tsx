@@ -47,7 +47,7 @@ const Timeline: React.FC = () => {
   useEffect(() => {
     dispatch(fetchPostsRequest());
   }, [dispatch]);
-console.log(posts, '50posts')
+console.log(posts    , '50posts')
   return (
     <div className="timeline-container">
       {loading ? (
